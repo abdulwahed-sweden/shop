@@ -9,17 +9,18 @@
        colour without hunting through the file. Everything below
        inherits from them. */
     :root {
-      --brand:        #0d9488;   /* accent — monogram, links, primary CTA */
-      --brand-strong: #0f766e;   /* accent hover / pressed                */
-      --text:         #111827;   /* primary text                          */
-      --muted:        #6b7280;   /* secondary text, section eyebrows      */
+      --brand:        #1e3a5f;   /* accent — Deep Navy (matches ui/ kit)   */
+      --brand-strong: #15293f;   /* accent hover / pressed                */
+      --accent2:      #e0912b;   /* warm amber — light, joyful secondary  */
+      --text:         #15233b;   /* primary text                          */
+      --muted:        #51607a;   /* secondary text, section eyebrows      */
 
       /* Neutrals + surfaces */
-      --subtle: #9ca3af;
-      --line:   #e6e8eb;
+      --subtle: #8a93a6;
+      --line:   #dde4ea;
       --surface:#ffffff;
-      --bg:     #f6f7f9;
-      --wash:   #f0fdfa;         /* faint brand tint (hover surfaces)     */
+      --bg:     #f6f8fb;
+      --wash:   #eef2f7;         /* faint brand tint (hover surfaces)     */
 
       /* Type scale — mirrors the admin's canonical tokens:
          14 metadata · 16 secondary · 17 body · 20 titles · 24 · 32 */
@@ -70,12 +71,12 @@
       text-transform: uppercase; letter-spacing: 0.05em;
       color: var(--brand-strong);
       background: var(--wash);
-      border: 1px solid #cdeee9;
+      border: 1px solid #c4cfdd;
       border-radius: 999px;
     }
     .env-badge::before {
       content: ""; width: 7px; height: 7px; border-radius: 50%;
-      background: var(--brand);
+      background: var(--accent2);
       box-shadow: 0 0 0 3px rgb(13 148 136 / 0.18);
     }
 
@@ -141,8 +142,8 @@
     .status-card .dot {
       flex-shrink: 0; margin-top: 0.45rem;
       width: 8px; height: 8px; border-radius: 50%;
-      background: var(--brand);
-      box-shadow: 0 0 0 3px rgb(13 148 136 / 0.16);
+      background: var(--accent2);
+      box-shadow: 0 0 0 3px rgb(224 145 43 / 0.18);
     }
     .status-card strong { display: block; font-size: var(--fs-sm); font-weight: 600; }
     .status-card span { font-size: var(--fs-xs); color: var(--muted); }
@@ -208,7 +209,7 @@
       font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
       overflow-x: auto;
     }
-    .terminal pre .p { color: #5eead4; }   /* prompt $ */
+    .terminal pre .p { color: #9db8d8; }   /* prompt $ */
     .terminal pre .c { color: #64748b; }   /* comment  */
 
     code {

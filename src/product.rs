@@ -1,7 +1,7 @@
 //! Product model and admin configuration.
 
 use rust_decimal::Decimal;
-use rustio_admin::{Error, Model, ModelAdmin, Row, RustioAdmin, Value};
+use rustio_admin::{Error, Inline, Model, ModelAdmin, Row, RustioAdmin, Value};
 
 #[derive(RustioAdmin)]
 pub struct Product {
@@ -54,5 +54,16 @@ impl ModelAdmin for Product {
 
     fn ordering() -> &'static [&'static str] {
         &["-id"]
+    }
+
+    // The product's gallery, listed on its edit page.
+    fn inlines() -> &'static [Inline] {
+        &[Inline {
+            target_model: "ProductImage",
+            fk_field: "product_id",
+            label: Some("Images"),
+            max_rows: 20,
+            display_field: Some("alt_text"),
+        }]
     }
 }

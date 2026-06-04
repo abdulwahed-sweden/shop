@@ -34,6 +34,147 @@ html {
   --rio-fs-display: 2rem;       /* 32px — page / login title                            */
 }
 </style>
+
+{# ── rio "Deep Navy" identity ──────────────────────────────────────────
+ # Applies the ui/ design-system palette (ui/rio-tokens.css, primary
+ # #1e3a5f) to the framework admin. We re-point the framework's own
+ # tokens — no framework files are touched, this is pure cascade override
+ # (loaded after /static/admin.css, so same-specificity rules win on
+ # source order). Three scopes mirror the framework's own layering:
+ #   1. :root        — global brand/accent/surface/status (matches colors.css)
+ #   2. .rio-sidebar — the dark chrome remap (matches shell.css)
+ #   3. .rio-topbar  — the rio signature dark-navy top frame
+ #}
+<style id="rio-navy-theme">
+/* 1. Global identity — navy brand + ui surfaces/borders/status.
+ *    Uses :root (not html) so it matches colors.css specificity and
+ *    wins on source order. */
+:root {
+  --rio-accent:         #1e3a5f;   /* Deep Navy — primary */
+  --rio-accent-hover:   #15293f;
+  --rio-accent-rgb:     30 58 95;
+  --rio-accent-soft:    #e3e9f0;   /* soft navy tint (selected wash on light) */
+  --rio-accent-border:  #c4cfdd;
+
+  /* Secondary accent — warm amber/gold. The classic navy companion:
+   * joyful but premium. Used sparingly for delight (KPI icons, secondary
+   * "→" links, hover pops) — never for primary actions, which stay navy.
+   *   --rio-accent2      decorative amber (icon/dot fills on light tints)
+   *   --rio-accent2-ink  darker amber that passes contrast as link text
+   *   --rio-accent2-soft very light amber wash (icon backgrounds, hovers) */
+  --rio-accent2:        #e0912b;
+  --rio-accent2-ink:    #b06d0e;
+  --rio-accent2-soft:   #fbeed9;
+  --rio-accent2-rgb:    224 145 43;
+
+  --rio-brand-light:    #1e3a5f;
+  --rio-brand-dark:     #1e3a5f;
+  --rio-brand-adaptive: #1e3a5f;
+  --rio-brand-surface:  #1e3a5f;
+  --rio-brand-accent:   #1e3a5f;
+  --rio-brand-secondary:#34557d;
+  --rio-brand-hover:    #15293f;
+  --rio-brand-active:   #15293f;
+  --rio-brand-tint:     #e3e9f0;
+  --rio-brand-text:     #1e3a5f;
+
+  --rio-surface-chrome: #1b2a4e;   /* navy sidebar + footer (ui dark-aside) */
+
+  --rio-bg:        #eef2fa;   /* canvas: a soft, very light navy tint (cooler than gray) */
+  --rio-surface:   #ffffff;
+  --rio-surface-2: #f1f4f8;
+  --rio-surface-3: #f9fbfd;
+
+  --rio-text-strong: #15233b;
+  --rio-text:        #1c2540;
+  --rio-text-muted:  #51607a;
+  --rio-text-subtle: #6b7894;
+
+  --rio-border:        #dde4ea;
+  --rio-border-soft:   #eef2f5;
+  --rio-border-strong: #c4cfdd;
+
+  /* Status: ui soft tints; text kept dark enough to read on its tint. */
+  --rio-success:    #5aa524;
+  --rio-warning:    #c2820a;
+  --rio-danger:     #e23b4d;
+  --rio-success-bg: #e2f1d6;
+  --rio-warning-bg: #fef7e4;
+  --rio-danger-bg:  #fddcdf;
+  --rio-info-bg:    #e3fafd;
+}
+
+/* 2. Dark navy chrome (sidebar + footer): light text, and the accent
+ *    lifted to a light steel-blue so the active item reads on navy
+ *    (navy-on-navy would vanish — same trick shell.css uses for teal). */
+.rio-sidebar,
+.rio-footer {
+  --rio-text-strong: #f5f8fc;
+  --rio-text:        #ccd6e6;
+  --rio-text-muted:  #93a1bd;
+  --rio-text-subtle: #74819e;
+
+  --rio-surface-2: #243454;   /* hover  */
+  --rio-surface-3: #2c3c5e;   /* active */
+
+  --rio-border-soft:   #243454;
+  --rio-border:        #2e3f60;
+  --rio-border-strong: #3a4d73;
+
+  --rio-accent:        #9db8d8;   /* light steel-blue — visible on navy */
+  --rio-accent-hover:  #b9cde6;
+  --rio-accent-rgb:    157 184 216;
+  --rio-accent-soft:   #2a3f63;   /* selected-item bg within chrome */
+  --rio-accent-border: #3a5680;
+}
+
+/* 3. rio dark-navy top frame (the framework ships a light topbar; the
+ *    ui signature is a navy bar with light text). The account dropdown
+ *    *panel* sits on white and is intentionally left untouched. */
+.rio-topbar {
+  background: #1e3a5f;
+  border-bottom-color: #15293f;
+}
+.rio-topbar-brand { color: #ffffff; }
+.rio-topbar-identity,
+.rio-topbar-link { color: rgba(255, 255, 255, 0.72); }
+.rio-topbar-link:hover { color: #ffffff; }
+/* The account toggle is also a .rio-dropdown-toggle. The framework flips
+ * `.rio-dropdown.is-open .rio-dropdown-toggle` to a light surface when the
+ * menu opens (specificity 0,2,0) — that would hide the white email text
+ * (white-on-near-white). Hold the translucent-navy style across the resting,
+ * hover, AND open states so the email stays readable after a click. */
+.rio-topbar-account__toggle,
+.rio-topbar-account__toggle:hover,
+.rio-dropdown.is-open .rio-topbar-account__toggle {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.10);   /* translucent field, not the light-topbar white pill */
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+.rio-topbar-account__toggle:hover,
+.rio-dropdown.is-open .rio-topbar-account__toggle { background: rgba(255, 255, 255, 0.16); }
+.rio-topbar-account__email { color: rgba(255, 255, 255, 0.90); }
+.rio-topbar-bell__badge { background: var(--rio-danger); }  /* red, not navy-on-navy */
+.rio-sidebar-toggle {
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.25);
+}
+/* Search trigger: translucent field on the navy bar (rio --rio-topbar-field). */
+.rio-search-trigger {
+  background: rgba(255, 255, 255, 0.10);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.75);
+}
+.rio-search-trigger:hover { background: rgba(255, 255, 255, 0.16); }
+.rio-search-trigger__label,
+.rio-search-trigger__icon { color: rgba(255, 255, 255, 0.78); }
+.rio-search-trigger__kbd {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.22);
+  color: rgba(255, 255, 255, 0.82);
+}
+</style>
+
 {% if has_theme_overrides %}
 <style>
 html {

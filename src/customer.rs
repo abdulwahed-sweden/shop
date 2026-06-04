@@ -1,6 +1,6 @@
 //! Customer model and admin configuration.
 
-use rustio_admin::{Error, Model, ModelAdmin, Row, RustioAdmin, Value};
+use rustio_admin::{Error, Inline, Model, ModelAdmin, Row, RustioAdmin, Value};
 
 #[derive(RustioAdmin)]
 pub struct Customer {
@@ -55,5 +55,25 @@ impl ModelAdmin for Customer {
 
     fn ordering() -> &'static [&'static str] {
         &["-id"]
+    }
+
+    // A customer's orders and addresses, listed on their edit page.
+    fn inlines() -> &'static [Inline] {
+        &[
+            Inline {
+                target_model: "Order",
+                fk_field: "customer_id",
+                label: Some("Orders"),
+                max_rows: 50,
+                display_field: Some("status"),
+            },
+            Inline {
+                target_model: "Address",
+                fk_field: "customer_id",
+                label: Some("Addresses"),
+                max_rows: 20,
+                display_field: Some("city"),
+            },
+        ]
     }
 }
