@@ -1,0 +1,392 @@
+{% extends "admin/_base.html" %}
+
+{# ---------------------------------------------------------------------------
+ # Project override of the framework "Site administration" dashboard.
+ #
+ # Compact + clear: inherits the framework's own font and type scale (so it
+ # matches every other admin page), shrinks the cards as much as possible,
+ # and keeps only a light touch of accent colour. Token-only — no custom
+ # font, no hard-coded sizes — so it tracks the rest of the admin exactly.
+ #
+ # Markup + context vars are identical to the embedded default; all rules
+ # are scoped under `.rio-dash2` and emitted in `extra_head` (after
+ # admin.css) so they win on specificity + source order without !important.
+ # --------------------------------------------------------------------------- #}
+
+{% block extra_head %}
+<style>
+  .rio-dash2 {
+    --accent: var(--rio-accent);
+    --hair:   var(--rio-border-soft);
+    --wash:   color-mix(in srgb, var(--rio-accent) 5%, transparent);
+  }
+
+  /* ---- page header: small, ruled, accent eyebrow ------------------ */
+  .rio-dash2 .rio-page-header {
+    margin-bottom: var(--rio-s4);
+    padding-bottom: var(--rio-s3);
+    border-bottom: 1px solid var(--hair);
+  }
+  .rio-dash2 .rio-breadcrumbs {
+    margin-bottom: var(--rio-s1);
+    font-size: var(--rio-fs-xs);
+    font-weight: var(--rio-fw-semibold);
+    text-transform: uppercase;
+    letter-spacing: var(--rio-tracking-allcaps);
+    color: var(--accent);
+  }
+  .rio-dash2 .rio-page-header h1 {
+    font-size: var(--rio-fs-display);
+    line-height: var(--rio-lh-tight);
+    font-weight: var(--rio-fw-semibold);
+    color: var(--rio-text-strong);
+  }
+  .rio-dash2 .rio-env-chip { font-size: var(--rio-fs-xs); padding: 2px 8px; }
+
+  /* ---- KPI strip: small cards, thin semantic rail ----------------- */
+  .rio-dash2 .rio-dashboard-stats {
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: var(--rio-s3);
+    margin-bottom: var(--rio-s4);
+  }
+  .rio-dash2 .rio-stat {
+    padding: var(--rio-s3) var(--rio-s4);
+    border: 1px solid var(--hair);
+    background: var(--rio-surface);
+    box-shadow: none;
+  }
+  .rio-dash2 .rio-stat::before { height: 2px; }
+  .rio-dash2 .rio-stat--info::before    { background: var(--rio-accent); }
+  .rio-dash2 .rio-stat--success::before { background: var(--rio-success); }
+  .rio-dash2 .rio-stat--warning::before { background: var(--rio-warning); }
+  .rio-dash2 .rio-stat--accent::before  { background: var(--rio-accent); }
+  .rio-dash2 .rio-stat__label {
+    margin-bottom: var(--rio-s1);
+    font-size: var(--rio-fs-xs);
+    color: var(--rio-text-muted);
+  }
+  .rio-dash2 .rio-stat__value {
+    font-size: var(--rio-fs-xl);
+    font-weight: var(--rio-fw-bold);
+    line-height: 1.15;
+    color: var(--rio-text-strong);
+    font-variant-numeric: tabular-nums;
+  }
+  .rio-dash2 .rio-stat__value--text { font-size: var(--rio-fs-lg); }
+  .rio-dash2 .rio-stat__meta { font-size: var(--rio-fs-xs); color: var(--rio-text-subtle); }
+
+  /* ---- section headers: match framework heading scale ------------- */
+  .rio-dash2 .rio-section { margin-top: var(--rio-s5); }
+  .rio-dash2 .rio-section__header {
+    margin-bottom: var(--rio-s3);
+    padding-bottom: var(--rio-s2);
+    border-bottom: 1px solid var(--hair);
+  }
+  .rio-dash2 .rio-section__label {
+    font-size: var(--rio-fs-xs);
+    font-weight: var(--rio-fw-semibold);
+    text-transform: uppercase;
+    letter-spacing: var(--rio-tracking-allcaps);
+    color: var(--accent);
+  }
+  .rio-dash2 .rio-section__title { font-size: var(--rio-fs-lg); font-weight: var(--rio-fw-semibold); color: var(--rio-text-strong); }
+  .rio-dash2 .rio-section__meta { font-size: var(--rio-fs-sm); color: var(--rio-text-subtle); }
+  .rio-dash2 .rio-section__link { font-size: var(--rio-fs-md); color: var(--accent); }
+
+  /* ---- model grid: smallest sensible cards ------------------------ */
+  .rio-dash2 .rio-model-grid {
+    grid-template-columns: repeat(auto-fill, minmax(208px, 1fr));
+    gap: var(--rio-s3);
+  }
+  .rio-dash2 .rio-model-tile {
+    padding: var(--rio-s4);
+    gap: var(--rio-s2);
+    border: 1px solid var(--hair);
+    background: var(--rio-surface);
+    box-shadow: none;
+    transition: border-color .14s ease, background .14s ease;
+  }
+  /* one calm surface + a single thin accent rail (drop the colour cycle) */
+  .rio-dash2 .rio-model-tile:nth-child(4n+1),
+  .rio-dash2 .rio-model-tile:nth-child(4n+2),
+  .rio-dash2 .rio-model-tile:nth-child(4n+3),
+  .rio-dash2 .rio-model-tile:nth-child(4n+4) { background: var(--rio-surface); }
+  .rio-dash2 .rio-model-tile::before,
+  .rio-dash2 .rio-model-tile:nth-child(4n+1)::before,
+  .rio-dash2 .rio-model-tile:nth-child(4n+2)::before,
+  .rio-dash2 .rio-model-tile:nth-child(4n+3)::before,
+  .rio-dash2 .rio-model-tile:nth-child(4n+4)::before { height: 2px; background: var(--hair); }
+  .rio-dash2 .rio-model-tile:hover { transform: none; box-shadow: none; border-color: var(--accent); background: var(--wash); }
+  .rio-dash2 .rio-model-tile:hover::before { background: var(--accent); }
+  .rio-dash2 .rio-model-tile__title { font-size: var(--rio-fs-lg); font-weight: var(--rio-fw-semibold); color: var(--rio-text-strong); }
+  .rio-dash2 .rio-model-tile__title-link:hover .rio-model-tile__title { color: var(--accent); }
+  .rio-dash2 .rio-model-tile__stat { margin-top: 0; align-items: baseline; gap: 6px; }
+  .rio-dash2 .rio-model-tile__stat-num {
+    font-size: var(--rio-fs-xl);
+    font-weight: var(--rio-fw-bold);
+    line-height: 1.15;
+    color: var(--rio-text-strong);
+    font-variant-numeric: tabular-nums;
+  }
+  .rio-dash2 .rio-model-tile__stat-suffix { font-size: var(--rio-fs-xs); color: var(--rio-text-muted); }
+  .rio-dash2 .rio-model-tile__stat-secondary { font-size: var(--rio-fs-xs); color: var(--rio-text-subtle); }
+  .rio-dash2 .rio-model-tile__meta { font-size: var(--rio-fs-xs); color: var(--rio-text-subtle); }
+  .rio-dash2 .rio-model-tile__actions {
+    margin-top: var(--rio-s2);
+    padding-top: var(--rio-s2);
+    border-top: 1px solid var(--hair);
+    gap: var(--rio-s1);
+  }
+  .rio-dash2 .rio-model-tile__actions .rio-button { font-size: var(--rio-fs-sm); }
+
+  /* ---- activity + tools: normal framework rows -------------------- */
+  .rio-dash2 .rio-dashboard-split { gap: var(--rio-s4); }
+  .rio-dash2 .rio-activity-feed__item { padding: var(--rio-s3) var(--rio-s4); font-size: var(--rio-fs-md); line-height: var(--rio-lh-ui); }
+  .rio-dash2 .rio-activity-feed__meta { font-size: var(--rio-fs-xs); color: var(--rio-text-muted); }
+  .rio-dash2 .rio-tool-link { padding: var(--rio-s3) var(--rio-s4); transition: background .14s ease; }
+  .rio-dash2 .rio-tool-link:hover { background: var(--wash); }
+  .rio-dash2 .rio-tool-link__text strong { font-size: var(--rio-fs-md); color: var(--rio-text-strong); }
+  .rio-dash2 .rio-tool-link__text span { font-size: var(--rio-fs-sm); color: var(--rio-text-muted); }
+  .rio-dash2 .rio-sparkline { padding: var(--rio-s3) var(--rio-s4); margin-bottom: var(--rio-s3); border: 1px solid var(--hair); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="rio-dash2">
+
+<header class="rio-page-header">
+  <nav class="rio-breadcrumbs">{{ app_name }}</nav>
+  <div class="rio-page-actions">
+    <h1>{{ index_title }}</h1>
+    <div class="rio-page-header__chips">
+      <span class="rio-env-chip rio-env-chip--{{ environment_kind }}" title="Runtime environment">{{ environment_label }}</span>
+      <span class="rio-env-chip rio-env-chip--ver" title="Framework version">v{{ framework_version }}</span>
+    </div>
+  </div>
+</header>
+
+{# ---- KPI strip — four compact data points ---------------------- #}
+<section class="rio-dashboard-stats" aria-label="At a glance">
+  <article class="rio-stat rio-stat--info">
+    <p class="rio-stat__label">Registered models</p>
+    <p class="rio-stat__value">{{ total_models }}</p>
+    <p class="rio-stat__meta">Across {{ apps|length }} app{% if apps|length != 1 %}s{% endif %}</p>
+  </article>
+  <article class="rio-stat rio-stat--success">
+    <p class="rio-stat__label">Total rows</p>
+    <p class="rio-stat__value">{{ total_rows }}</p>
+    <p class="rio-stat__meta">Approx. — pg_class.reltuples</p>
+  </article>
+  <article class="rio-stat rio-stat--warning">
+    <p class="rio-stat__label">Recent activity</p>
+    <p class="rio-stat__value">{{ recent_actions_count }}</p>
+    <p class="rio-stat__meta">Audit events in window</p>
+  </article>
+  <article class="rio-stat rio-stat--accent">
+    <p class="rio-stat__label">Environment</p>
+    <p class="rio-stat__value rio-stat__value--text">{{ environment_label }}</p>
+    <p class="rio-stat__meta">RustIO v{{ framework_version }}</p>
+  </article>
+</section>
+
+{# ---- Browse data ------------------------------------------------ #}
+<section class="rio-section" aria-label="Browse data">
+  <header class="rio-section__header">
+    <div class="rio-section__heading">
+      <span class="rio-section__label">Browse data</span>
+      <h2 class="rio-section__title">Models</h2>
+    </div>
+    <span class="rio-section__meta">{{ total_models }} model{% if total_models != 1 %}s{% endif %} · {{ total_rows }} row{% if total_rows != 1 %}s{% endif %} total</span>
+  </header>
+  {% if apps %}
+  <div class="rio-model-grid">
+    {% for app in apps %}
+      {% for model in app.models %}
+      <article class="rio-model-tile">
+        <a class="rio-model-tile__title-link" href="/admin/{{ model.admin_name }}">
+          <h3 class="rio-model-tile__title">{{ model.display_name }}</h3>
+        </a>
+        <p class="rio-model-tile__stat">
+          <span class="rio-model-tile__stat-num">{{ model.row_estimate }}</span>
+          <span class="rio-model-tile__stat-suffix">{% if model.row_estimate == 1 %}row{% else %}rows{% endif %}</span>
+        </p>
+        {% if model.new_this_week is not none %}
+        <p class="rio-model-tile__stat-secondary" title="Exact count — rows with created_at within the last 7 days">
+          <span class="rio-model-tile__stat-num">{{ model.new_this_week }}</span>
+          new this week
+        </p>
+        {% endif %}
+        <p class="rio-model-tile__meta">
+          {{ model.field_count }} field{% if model.field_count != 1 %}s{% endif %}
+        </p>
+        <div class="rio-model-tile__actions">
+          <a class="rio-button rio-button--ghost rio-button--sm" href="/admin/{{ model.admin_name }}">
+            {{ icon("table", class="rio-icon") }} Browse
+          </a>
+          {% if not read_only %}
+          <a class="rio-button rio-button--ghost rio-button--sm" href="/admin/{{ model.admin_name }}/new">
+            {{ icon("plus", class="rio-icon") }} Add
+          </a>
+          {% endif %}
+        </div>
+      </article>
+      {% endfor %}
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="rio-card rio-card--quiet">
+    <div class="rio-empty-state">
+      <div class="rio-empty-state__icon">{{ icon("database", class="rio-icon") }}</div>
+      <h3 class="rio-empty-state__title">No models registered yet</h3>
+      <p class="rio-empty-state__lead">
+        Run <code>rustio-admin startapp &lt;name&gt;</code> to scaffold a model + migration,
+        then chain <code>.model::&lt;YourModel&gt;()</code> onto
+        <code>Admin::new()</code> in <code>src/main.rs</code>. It will appear here on
+        the next boot.
+      </p>
+    </div>
+  </div>
+  {% endif %}
+</section>
+
+{# ---- Activity + Tools split ------------------------------------ #}
+<div class="rio-dashboard-split">
+
+  <section class="rio-section" aria-label="Recent activity">
+    <header class="rio-section__header">
+      <div class="rio-section__heading">
+        <span class="rio-section__label">Activity</span>
+        <h2 class="rio-section__title">Recent</h2>
+      </div>
+      {% if recent_actions and identity.is_admin %}
+      <a class="rio-section__link" href="/admin/history">View full history →</a>
+      {% endif %}
+    </header>
+    {% if activity_sparkline %}
+    <figure class="rio-sparkline" aria-label="Admin actions over the last 7 days">
+      <figcaption class="rio-sparkline__caption">
+        {{ activity_sparkline_total }} action{% if activity_sparkline_total != 1 %}s{% endif %} in the last 7 days
+      </figcaption>
+      {% set max_h = 48 %}
+      {% set spark_max = activity_sparkline_max or 1 %}
+      {% set ns = namespace(line="") %}
+      {% for p in activity_sparkline %}
+        {% set x = loop.index0 * 40 + 16 %}
+        {% set y = max_h - ((p.count * max_h) // spark_max) %}
+        {% set ns.line = ns.line ~ x ~ "," ~ y ~ " " %}
+      {% endfor %}
+      {% set first_x = 16 %}
+      {% set last_x = (activity_sparkline|length - 1) * 40 + 16 %}
+      <svg class="rio-sparkline__svg" viewBox="0 0 280 64" preserveAspectRatio="none" role="img" aria-hidden="true">
+        <defs>
+          <linearGradient id="rio-sparkline-grad" x1="0" y1="0" x2="0" y2="1">
+            <stop class="rio-sparkline__grad-stop-top" offset="0%"/>
+            <stop class="rio-sparkline__grad-stop-bot" offset="100%"/>
+          </linearGradient>
+        </defs>
+        <line class="rio-sparkline__baseline" x1="{{ first_x }}" x2="{{ last_x }}" y1="{{ max_h }}" y2="{{ max_h }}"/>
+        <polygon class="rio-sparkline__area" points="{{ ns.line|trim }} {{ last_x }},{{ max_h }} {{ first_x }},{{ max_h }}"/>
+        <polyline class="rio-sparkline__line" points="{{ ns.line|trim }}"/>
+        {% for p in activity_sparkline %}
+        {% set x = loop.index0 * 40 + 16 %}
+        {% set y = max_h - ((p.count * max_h) // spark_max) %}
+        <circle class="rio-sparkline__dot" cx="{{ x }}" cy="{{ y }}" r="2.5"/>
+        <text class="rio-sparkline__tick" x="{{ x }}" y="62" text-anchor="middle">{{ p.label }}</text>
+        {% endfor %}
+      </svg>
+      <ul class="rio-sparkline__data" hidden>
+        {% for p in activity_sparkline %}
+        <li>{{ p.date_iso }} ({{ p.label }}): {{ p.count }}</li>
+        {% endfor %}
+      </ul>
+    </figure>
+    {% endif %}
+    {% if recent_actions %}
+    <ul class="rio-activity-feed">
+      {% for a in recent_actions %}
+      <li class="rio-activity-feed__item">
+        <span class="rio-pill rio-pill--{{ a.pill_class }}">{{ a.label }}</span>
+        <span class="rio-activity-feed__target">
+          <a href="/admin/{{ a.model_name }}">{{ a.model_name }}</a>
+          <span class="rio-activity-feed__sep" aria-hidden="true">·</span>
+          #<a href="/admin/{{ a.model_name }}/{{ a.object_id }}/edit">{{ a.object_id }}</a>
+        </span>
+        {% if a.summary %}<span class="rio-activity-feed__summary">{{ a.summary }}</span>{% endif %}
+        <span class="rio-activity-feed__meta">{{ a.user_email }} · {{ a.when_relative }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <div class="rio-card rio-card--quiet">
+      <div class="rio-empty-state">
+        <div class="rio-empty-state__icon">{{ icon("clock", class="rio-icon") }}</div>
+        <h3 class="rio-empty-state__title">No actions yet</h3>
+        <p class="rio-empty-state__lead">
+          Once operators start creating, editing, or deleting rows,
+          the audit feed lights up here.
+        </p>
+      </div>
+    </div>
+    {% endif %}
+  </section>
+
+  <aside class="rio-section" aria-label="Framework tools">
+    <header class="rio-section__header">
+      <div class="rio-section__heading">
+        <span class="rio-section__label">Quick links</span>
+        <h2 class="rio-section__title">Framework tools</h2>
+      </div>
+    </header>
+    <ul class="rio-tool-list">
+      {% if identity.is_admin %}
+      <li><a class="rio-tool-link" href="/admin/history">
+        {{ icon("clock", class="rio-tool-link__icon") }}
+        <span class="rio-tool-link__text">
+          <strong>Audit log</strong>
+          <span>Full history of every authority mutation.</span>
+        </span>
+      </a></li>
+      <li><a class="rio-tool-link" href="/admin/users">
+        {{ icon("users", class="rio-tool-link__icon") }}
+        <span class="rio-tool-link__text">
+          <strong>Users</strong>
+          <span>Create, role-shift, lock, or recover operator accounts.</span>
+        </span>
+      </a></li>
+      <li><a class="rio-tool-link" href="/admin/groups">
+        {{ icon("key", class="rio-tool-link__icon") }}
+        <span class="rio-tool-link__text">
+          <strong>Groups &amp; permissions</strong>
+          <span>Bundle perms into reusable groups; assign by role.</span>
+        </span>
+      </a></li>
+      <li><a class="rio-tool-link" href="/admin/feature_flags">
+        {{ icon("flag", class="rio-tool-link__icon") }}
+        <span class="rio-tool-link__text">
+          <strong>Feature flags</strong>
+          <span>Project-side boolean flags read by your code.</span>
+        </span>
+      </a></li>
+      {% endif %}
+      {% if identity.is_developer %}
+      <li><a class="rio-tool-link" href="/admin/db">
+        {{ icon("database", class="rio-tool-link__icon") }}
+        <span class="rio-tool-link__text">
+          <strong>Database explorer</strong>
+          <span>Read-only Postgres schema view — tables, columns, indexes.</span>
+        </span>
+      </a></li>
+      {% endif %}
+      <li><a class="rio-tool-link" href="/admin/account/sessions">
+        {{ icon("log-out", class="rio-tool-link__icon") }}
+        <span class="rio-tool-link__text">
+          <strong>Your sessions</strong>
+          <span>Active sign-ins on this account; revoke from anywhere.</span>
+        </span>
+      </a></li>
+    </ul>
+  </aside>
+
+</div>
+</div>
+{% endblock %}

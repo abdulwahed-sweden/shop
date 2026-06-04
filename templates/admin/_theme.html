@@ -1,0 +1,62 @@
+{# Project override of the framework theme partial.
+ #
+ # Included by _base.html AFTER `<link href="/static/admin.css">`, so the
+ # token redefinitions below win cascade ties on source order without
+ # `!important`. This applies admin-wide (every page extends _base.html).
+ #
+ # Purpose: raise the canonical type scale. The stock 14/15/16px tiers
+ # read too small on laptop screens; primary readable UI text must be
+ # >= 16px, with 14px reserved for genuine metadata. See the project
+ # typography decision.
+ #
+ # The second block preserves the framework's AdminTheme passthrough
+ # (accent / bg / surface / text overrides) unchanged, so configuring a
+ # theme in Rust still works exactly as before.
+ #
+ # Everything is wrapped in a uniquely-named `{% block %}`. This partial
+ # is *included* (not extended), so the block just renders its body
+ # verbatim — output is unchanged. The marker only exists to satisfy the
+ # framework's override-completeness check (templates.rs: looks for
+ # `{% extends`, `{% block`, or `<html`), which otherwise logs a WARN
+ # for a structurally-minimal partial like this one. #}
+{% block project_theme_tokens %}
+<style>
+html {
+  --rio-fs-xs:      0.875rem;   /* 14px — metadata, badges, suffixes, helper text only */
+  --rio-fs-sm:      1rem;       /* 16px — secondary text                                */
+  --rio-fs-md:      1.0625rem;  /* 17px — default readable UI text                      */
+  --rio-fs-base:    1.0625rem;  /* 17px — body / table cells, in step with --rio-fs-md  */
+  --rio-fs-lg:      1.25rem;    /* 20px — card and section titles                       */
+  --rio-fs-xl:      1.5rem;     /* 24px — KPI numbers                                   */
+  --rio-fs-h3:      1.25rem;    /* 20px — section heading (= lg)                        */
+  --rio-fs-h2:      1.5rem;     /* 24px — major heading (= xl)                          */
+  --rio-fs-h1:      2rem;       /* 32px — page title (= display)                        */
+  --rio-fs-display: 2rem;       /* 32px — page / login title                            */
+}
+</style>
+{% if has_theme_overrides %}
+<style>
+html {
+{%- if accent_hex %}
+  --rio-accent: {{ accent_hex }};
+  --rio-accent-rgb: {{ accent_rgb }};
+{%- endif %}
+{%- if theme_bg %}
+  --rio-bg: {{ theme_bg }};
+{%- endif %}
+{%- if theme_surface %}
+  --rio-surface: {{ theme_surface }};
+{%- endif %}
+{%- if theme_text %}
+  --rio-text: {{ theme_text }};
+{%- endif %}
+{%- if theme_text_muted %}
+  --rio-text-muted: {{ theme_text_muted }};
+{%- endif %}
+{%- if theme_border %}
+  --rio-border: {{ theme_border }};
+{%- endif %}
+}
+</style>
+{% endif %}
+{% endblock %}
